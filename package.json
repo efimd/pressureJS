@@ -9,7 +9,8 @@
     "version": "0.0.1",
     "dependencies": {
         "async": "latest",
-        "ws": "latest"
+        "ws": "latest",
+        "node-uuid": "latest"
     },
     "readme": "README.md",
     "private": true,
