@@ -49,8 +49,22 @@ wssAgents.on('connection', function(conn) {
         console.log(this.id + ' connection closed');
     });
 
-});
 
+//    setTimeout(function () {
+//        conn.send(JSON.stringify({
+//            type : 'initTest',
+//            name : 'sockJS'
+//        }));
+//    }, 5000);
+//
+//    setTimeout(function () {
+//        conn.send(JSON.stringify({
+//            type : 'startTest',
+//            name : 'sockJS'
+//        }));
+//    }, 7000);
+
+});
 
 
 
@@ -67,12 +81,15 @@ var wssUI = new WebSocketServer({
 
 wssUI.on('connection', function(conn) {
     conn.on('message', function(message) {
-        console.log('received: %s', message);
+        console.log('UI received: %s', message);
+        var msg = JSON.parse(message);
+
+        if (msg.type == 'agentList') {
+            conn.send(JSON.stringify(agentMngr.getList()));
+        }
     });
 
     conn.on('close', function () {
 
     });
-
-    conn.send('something');
 });

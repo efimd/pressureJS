@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="prettyPrint.js"></script>
+</head>
+<body>
+<div id="output"></div>
+HELLO
+
+<script type="text/javascript">
+    var wsUri = "ws://localhost:8881/ui";
+    var output;
+    var websocket;
+    function init() {
+        output = document.getElementById("output");
+        startWebSocket();
+    }
+
+    function startWebSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function(evt) {
+            console.log('OPEN');
+            var msg = {
+                type : 'agentList'
+            };
+            websocket.send(JSON.stringify(msg));
+        };
+        websocket.onclose = function(evt) {
+            console.log('CLOSE');
+
+        };
+        websocket.onmessage = function(evt) {
+            console.log('MESSAGE');
+
+            var msg = JSON.parse(evt.data);
+            var tbl = prettyPrint( msg , {
+                expanded: false, // Expanded view (boolean) (default: true),
+                maxDepth: 7
+            });
+            document.body.appendChild(tbl);
+        };
+        websocket.onerror = function(evt) {
+            console.log('ERROR');
+        };
+
+
+    }
+    init();
+</script>
+</body>
+</html>

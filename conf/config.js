@@ -7,9 +7,9 @@
  */
 
 var config = {
-    agentPort : 8080,
+    agentPort : 8888,
     agentPath : '/agent',
-    UIport : 8081,
+    UIport : 8881,
     UIpath : '/ui',
     _version : require('../package.json').version
 };
