@@ -8,7 +8,9 @@
 
 var config = {
     agentPort : 8080,
+    agentPath : '/agent',
     UIport : 8081,
+    UIpath : '/ui',
     _version : require('../package.json').version
 };
 module.exports = config;
