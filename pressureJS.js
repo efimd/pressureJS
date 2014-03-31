@@ -6,6 +6,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var uuid = require('node-uuid');
+
 var http = require('http');
 var express = require('express');
 
@@ -14,7 +16,10 @@ var cfg = config;
 var AgentMngr = require('./lib/agentMngr');
 var agentMngr = new AgentMngr();
 
+var Room = require('./lib/room');
+
 var WebSocketServer = require('ws').Server;
+
 
 var app = express();
 
@@ -41,11 +46,10 @@ wssAgents.on('connection', function(conn) {
         catch (e) {
             console.error(conn.id + ' Error executing message:'+ msgJSON.type + ' e:'+e);
         }
-//        console.log('received: %s', messageTxt);
     });
 
     conn.on('close', function () {
-        agentMngr.hadleDisconnect(conn.id);
+        agentMngr.hadleDisconnect(this.id);
         console.log(this.id + ' connection closed');
     });
 
@@ -79,17 +83,42 @@ var wssUI = new WebSocketServer({
     path: cfg.UIpath
 });
 
+var uiRoom = new Room();
+
 wssUI.on('connection', function(conn) {
+    conn.id = uuid.v1();
+
+    uiRoom.join(conn.id, conn);
     conn.on('message', function(message) {
         console.log('UI received: %s', message);
         var msg = JSON.parse(message);
 
         if (msg.type == 'agentList') {
-            conn.send(JSON.stringify(agentMngr.getList()));
+            var response = {
+                type : 'agentList',
+                data : agentMngr.getList()
+            };
+            conn.send(JSON.stringify(response));
         }
     });
 
     conn.on('close', function () {
-
+        uiRoom.leave(this.id);
     });
+});
+
+agentMngr.on('agentAdded', function (agent) {
+    uiRoom.broadcast({
+        type : 'agentAdded',
+        data : agent
+    });
+    console.log('UI agentAdded: ' + agent.id);
+});
+
+agentMngr.on('update', function (agent) {
+    uiRoom.broadcast({
+        type : 'agentUpdate',
+        data : agent
+    });
+    console.log('UI agentUpdate: ' + agent.id);
 });
